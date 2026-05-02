@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f3460">
+  <title>レンズ価格表</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Hiragino Sans', 'Yu Gothic', sans-serif;
+      background: #0d1117;
+      color: #e6edf3;
+      min-height: 100vh;
+    }
+
+    header {
+      background: linear-gradient(135deg, #0f3460, #16213e);
+      padding: 20px 16px 16px;
+      text-align: center;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+    }
+
+    header h1 {
+      font-size: 1.4rem;
+      letter-spacing: 0.08em;
+      color: #58a6ff;
+    }
+
+    header p {
+      font-size: 0.75rem;
+      color: #8b949e;
+      margin-top: 4px;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    .card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .card h2 {
+      font-size: 0.8rem;
+      color: #8b949e;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    label {
+      font-size: 0.85rem;
+      color: #8b949e;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    select {
+      width: 100%;
+      padding: 10px 12px;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      color: #e6edf3;
+      font-size: 0.95rem;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238b949e' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: #58a6ff;
+    }
+
+    select:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .result-card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .result-card.show {
+      display: block;
+    }
+
+    .result-header {
+      background: linear-gradient(135deg, #0f3460, #1a3a5c);
+      padding: 12px 16px;
+    }
+
+    .result-header .brand {
+      font-size: 0.7rem;
+      color: #58a6ff;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .result-header .product {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #e6edf3;
+      margin-top: 2px;
+    }
+
+    .price-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: #30363d;
+    }
+
+    .price-item {
+      background: #161b22;
+      padding: 14px 8px;
+      text-align: center;
+    }
+
+    .price-item .label {
+      font-size: 0.7rem;
+      color: #8b949e;
+      margin-bottom: 6px;
+      letter-spacing: 0.05em;
+    }
+
+    .price-item .value {
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: #3fb950;
+    }
+
+    .price-item .value.empty {
+      color: #30363d;
+      font-size: 1rem;
+    }
+
+    .price-item .unit {
+      font-size: 0.65rem;
+      color: #8b949e;
+      margin-top: 2px;
+    }
+
+    .no-result {
+      text-align: center;
+      padding: 20px;
+      color: #8b949e;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .no-result.show {
+      display: block;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: bold;
+      margin-top: 4px;
+    }
+
+    .badge.clear {
+      background: rgba(31, 111, 235, 0.2);
+      color: #58a6ff;
+      border: 1px solid rgba(88, 166, 255, 0.3);
+    }
+
+    .badge.pbuv {
+      background: rgba(63, 185, 80, 0.2);
+      color: #3fb950;
+      border: 1px solid rgba(63, 185, 80, 0.3);
+    }
+
+    .reset-btn {
+      width: 100%;
+      padding: 10px;
+      background: transparent;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      color: #8b949e;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .reset-btn:hover {
+      border-color: #58a6ff;
+      color: #58a6ff;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🔍 レンズ価格表</h1>
+  <p>NIKON</p>
+</header>
+
+<div class="container">
+
+  <div class="card">
+    <h2>🔽 品目を選択</h2>
+    <div class="filter-group">
+
+      <div>
+        <label>レンズタイプ</label>
+        <select id="sel-type">
+          <option value="">-- 選択してください --</option>
+          <option value="CLEAR">CLEAR（クリア）</option>
+          <option value="PBUV">PBUV（紫外線カット）</option>
+        </select>
+      </div>
+
+      <div>
+        <label>品種（モデル）</label>
+        <select id="sel-model" disabled>
+          <option value="">-- タイプを先に選択 --</option>
+        </select>
+      </div>
+
+      <div>
+        <label>コート</label>
+        <select id="sel-coat" disabled>
+          <option value="">-- モデルを先に選択 --</option>
+        </select>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="result-card" id="result-card">
+    <div class="result-header">
+      <div class="brand">NIKON レンズ</div>
+      <div class="product" id="result-title"></div>
+      <span class="badge" id="result-badge"></span>
+    </div>
+    <div class="price-grid">
+      <div class="price-item">
+        <div class="label">常価</div>
+        <div class="value" id="price-normal">-</div>
+        <div class="unit">円</div>
+      </div>
+      <div class="price-item">
+        <div class="label">常価＋</div>
+        <div class="value" id="price-plus">-</div>
+        <div class="unit">円</div>
+      </div>
+      <div class="price-item">
+        <div class="label">特注</div>
+        <div class="value" id="price-special">-</div>
+        <div class="unit">円</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="no-result" id="no-result">
+    該当する価格データがありません
+  </div>
+
+  <button class="reset-btn" onclick="resetAll()">↺ リセット</button>
+
+</div>
+
+<script>
+const DATA = [
+  {type:"CLEAR", model:"155AS", coat:"SC",   normal:310,  plus:null, special:null},
+  {type:"CLEAR", model:"160AS", coat:"ECC",  normal:350,  plus:550,  special:950},
+  {type:"CLEAR", model:"160AS", coat:"BEC",  normal:550,  plus:750,  special:1150},
+  {type:"CLEAR", model:"160AS", coat:"TC",   normal:null, plus:null, special:1150},
+  {type:"CLEAR", model:"160AS", coat:"DSV",  normal:null, plus:null, special:1550},
+  {type:"CLEAR", model:"160AS", coat:"TCUV", normal:750,  plus:950,  special:1350},
+  {type:"CLEAR", model:"160AS", coat:"BCUV", normal:null, plus:null, special:1950},
+  {type:"PBUV",  model:"160AS", coat:"ECC",  normal:null, plus:null, special:1650},
+  {type:"PBUV",  model:"160AS", coat:"BEC",  normal:null, plus:null, special:1850},
+  {type:"PBUV",  model:"160AS", coat:"TC",   normal:null, plus:null, special:1850},
+  {type:"PBUV",  model:"160AS", coat:"DSV",  normal:null, plus:null, special:2250},
+  {type:"PBUV",  model:"160AS", coat:"TCUV", normal:980,  plus:null, special:2050},
+  {type:"PBUV",  model:"160AS", coat:"BCUV", normal:null, plus:null, special:2650},
+  {type:"CLEAR", model:"167AS", coat:"ECC",  normal:650,  plus:850,  special:1150},
+  {type:"CLEAR", model:"167AS", coat:"BEC",  normal:null, plus:null, special:1350},
+  {type:"CLEAR", model:"167AS", coat:"TC",   normal:null, plus:null, special:1350},
+  {type:"CLEAR", model:"167AS", coat:"DSV",  normal:null, plus:null, special:1750},
+  {type:"CLEAR", model:"167AS", coat:"TCUV", normal:1050, plus:1250, special:1550},
+  {type:"CLEAR", model:"167AS", coat:"BCUV", normal:null, plus:null, special:2150},
+  {type:"PBUV",  model:"167AS", coat:"ECC",  normal:null, plus:null, special:1850},
+  {type:"PBUV",  model:"167AS", coat:"BEC",  normal:null, plus:null, special:2050},
+  {type:"PBUV",  model:"167AS", coat:"TC",   normal:null, plus:null, special:2050},
+  {type:"PBUV",  model:"167AS", coat:"DSV",  normal:null, plus:null, special:2450},
+  {type:"PBUV",  model:"167AS", coat:"TCUV", normal:1200, plus:null, special:2250},
+  {type:"PBUV",  model:"167AS", coat:"BCUV", normal:null, plus:null, special:2850},
+  {type:"CLEAR", model:"174AS", coat:"SC",   normal:900,  plus:1100, special:1400},
+  {type:"CLEAR", model:"174AS", coat:"BEC",  normal:null, plus:null, special:1600},
+  {type:"CLEAR", model:"174AS", coat:"TC",   normal:null, plus:null, special:1600},
+  {type:"CLEAR", model:"174AS", coat:"DSV",  normal:null, plus:null, special:2000},
+  {type:"CLEAR", model:"174AS", coat:"TCUV", normal:1300, plus:1500, special:1800},
+  {type:"CLEAR", model:"174AS", coat:"BCUV", normal:null, plus:null, special:2400},
+  {type:"CLEAR", model:"155SP", coat:"HCC",  normal:299,  plus:null, special:null},
+  {type:"PBUV",  model:"174AS", coat:"SC",   normal:null, plus:null, special:2100},
+  {type:"PBUV",  model:"174AS", coat:"BEC",  normal:null, plus:null, special:2300},
+  {type:"PBUV",  model:"174AS", coat:"TC",   normal:null, plus:null, special:2300},
+  {type:"PBUV",  model:"174AS", coat:"TCUV", normal:null, plus:null, special:2500},
+  {type:"PBUV",  model:"174AS", coat:"BCUV", normal:null, plus:null, special:3100},
+  {type:"CLEAR", model:"160SP", coat:"ECC",  normal:300,  plus:500,  special:800},
+  {type:"CLEAR", model:"160SP", coat:"BEC",  normal:null, plus:null, special:1000},
+  {type:"CLEAR", model:"160SP", coat:"TC",   normal:null, plus:null, special:1000},
+  {type:"CLEAR", model:"160SP", coat:"DSV",  normal:null, plus:null, special:1400},
+  {type:"CLEAR", model:"160SP", coat:"TCUV", normal:600,  plus:800,  special:1200},
+  {type:"CLEAR", model:"160SP", coat:"BCUV", normal:null, plus:null, special:1800},
+  {type:"PBUV",  model:"160SP", coat:"ECC",  normal:null, plus:null, special:2100},
+  {type:"PBUV",  model:"160SP", coat:"BEC",  normal:null, plus:null, special:2300},
+  {type:"PBUV",  model:"160SP", coat:"TC",   normal:null, plus:null, special:2300},
+  {type:"PBUV",  model:"160SP", coat:"TCUV", normal:null, plus:null, special:2500},
+  {type:"PBUV",  model:"160SP", coat:"BCUV", normal:null, plus:null, special:3100},
+];
+
+const selType  = document.getElementById('sel-type');
+const selModel = document.getElementById('sel-model');
+const selCoat  = document.getElementById('sel-coat');
+
+selType.addEventListener('change', () => {
+  const type = selType.value;
+  selModel.innerHTML = '<option value="">-- 選択してください --</option>';
+  selCoat.innerHTML  = '<option value="">-- モデルを先に選択 --</option>';
+  selModel.disabled = !type;
+  selCoat.disabled  = true;
+  hideResult();
+
+  if (!type) return;
+  const models = [...new Set(DATA.filter(d => d.type === type).map(d => d.model))];
+  models.forEach(m => {
+    const o = document.createElement('option');
+    o.value = m; o.textContent = m;
+    selModel.appendChild(o);
+  });
+});
+
+selModel.addEventListener('change', () => {
+  const type  = selType.value;
+  const model = selModel.value;
+  selCoat.innerHTML = '<option value="">-- 選択してください --</option>';
+  selCoat.disabled  = !model;
+  hideResult();
+
+  if (!model) return;
+  const coats = [...new Set(DATA.filter(d => d.type === type && d.model === model).map(d => d.coat))];
+  coats.forEach(c => {
+    const o = document.createElement('option');
+    o.value = c; o.textContent = c;
+    selCoat.appendChild(o);
+  });
+});
+
+selCoat.addEventListener('change', () => {
+  const type  = selType.value;
+  const model = selModel.value;
+  const coat  = selCoat.value;
+  if (!coat) { hideResult(); return; }
+
+  const row = DATA.find(d => d.type === type && d.model === model && d.coat === coat);
+  showResult(row, type, model, coat);
+});
+
+function fmt(v) {
+  if (v == null) return null;
+  return v.toLocaleString();
+}
+
+function showResult(row, type, model, coat) {
+  const card    = document.getElementById('result-card');
+  const noRes   = document.getElementById('no-result');
+  const title   = document.getElementById('result-title');
+  const badge   = document.getElementById('result-badge');
+  const pNormal = document.getElementById('price-normal');
+  const pPlus   = document.getElementById('price-plus');
+  const pSpec   = document.getElementById('price-special');
+
+  if (!row) {
+    card.classList.remove('show');
+    noRes.classList.add('show');
+    return;
+  }
+
+  title.textContent = `SV ${model} / ${coat}`;
+  badge.textContent = type;
+  badge.className   = 'badge ' + type.toLowerCase();
+
+  const setPrice = (el, val) => {
+    if (val != null) {
+      el.textContent = fmt(val);
+      el.classList.remove('empty');
+    } else {
+      el.textContent = '－';
+      el.classList.add('empty');
+    }
+  };
+
+  setPrice(pNormal, row.normal);
+  setPrice(pPlus,   row.plus);
+  setPrice(pSpec,   row.special);
+
+  card.classList.add('show');
+  noRes.classList.remove('show');
+}
+
+function hideResult() {
+  document.getElementById('result-card').classList.remove('show');
+  document.getElementById('no-result').classList.remove('show');
+}
+
+function resetAll() {
+  selType.value = '';
+  selModel.innerHTML = '<option value="">-- タイプを先に選択 --</option>';
+  selCoat.innerHTML  = '<option value="">-- モデルを先に選択 --</option>';
+  selModel.disabled  = true;
+  selCoat.disabled   = true;
+  hideResult();
+}
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js');
+}
+</script>
+
+</body>
+</html>
