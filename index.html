@@ -7,285 +7,98 @@
   <title>レンズ価格表</title>
   <link rel="manifest" href="manifest.json">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'Hiragino Sans', 'Yu Gothic', sans-serif;
-      background: #0d1117;
-      color: #e6edf3;
-      min-height: 100vh;
-    }
-
-    header {
-      background: linear-gradient(135deg, #0f3460, #16213e);
-      padding: 20px 16px 16px;
-      text-align: center;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.4);
-    }
-
-    header h1 {
-      font-size: 1.4rem;
-      letter-spacing: 0.08em;
-      color: #58a6ff;
-    }
-
-    header p {
-      font-size: 0.75rem;
-      color: #8b949e;
-      margin-top: 4px;
-    }
-
-    .container {
-      max-width: 480px;
-      margin: 0 auto;
-      padding: 16px;
-    }
-
-    .card {
-      background: #161b22;
-      border: 1px solid #30363d;
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-
-    .card h2 {
-      font-size: 0.8rem;
-      color: #8b949e;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      margin-bottom: 12px;
-    }
-
-    .filter-group {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    label {
-      font-size: 0.85rem;
-      color: #8b949e;
-      display: block;
-      margin-bottom: 4px;
-    }
-
-    select {
-      width: 100%;
-      padding: 10px 12px;
-      background: #0d1117;
-      border: 1px solid #30363d;
-      border-radius: 8px;
-      color: #e6edf3;
-      font-size: 0.95rem;
-      appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238b949e' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 12px center;
-      cursor: pointer;
-      transition: border-color 0.2s;
-    }
-
-    select:focus {
-      outline: none;
-      border-color: #58a6ff;
-    }
-
-    select:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
-
-    /* 染色セレクト強調 */
-    .tint-wrap select {
-      border-color: #553a7a;
-    }
-    .tint-wrap select:focus {
-      border-color: #c084fc;
-    }
-    .tint-wrap label {
-      color: #c084fc;
-    }
-
-    .result-card {
-      background: #161b22;
-      border: 1px solid #30363d;
-      border-radius: 12px;
-      overflow: hidden;
-      margin-bottom: 16px;
-      display: none;
-    }
-
-    .result-card.show {
-      display: block;
-    }
-
-    .result-header {
-      background: linear-gradient(135deg, #0f3460, #1a3a5c);
-      padding: 12px 16px;
-    }
-
-    .result-header .brand {
-      font-size: 0.7rem;
-      color: #58a6ff;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-    }
-
-    .result-header .product {
-      font-size: 1.05rem;
-      font-weight: bold;
-      color: #e6edf3;
-      margin-top: 2px;
-    }
-
-    .result-header .tint-info {
-      font-size: 0.75rem;
-      color: #c084fc;
-      margin-top: 4px;
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 20px;
-      font-size: 0.7rem;
-      font-weight: bold;
-      margin-top: 4px;
-    }
-
-    .badge.clear {
-      background: rgba(31, 111, 235, 0.2);
-      color: #58a6ff;
-      border: 1px solid rgba(88, 166, 255, 0.3);
-    }
-
-    .badge.pbuv {
-      background: rgba(63, 185, 80, 0.2);
-      color: #3fb950;
-      border: 1px solid rgba(63, 185, 80, 0.3);
-    }
-
-    .price-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1px;
-      background: #30363d;
-    }
-
-    .price-item {
-      background: #161b22;
-      padding: 14px 8px;
-      text-align: center;
-    }
-
-    .price-item .label {
-      font-size: 0.7rem;
-      color: #8b949e;
-      margin-bottom: 4px;
-      letter-spacing: 0.05em;
-    }
-
-    .price-item .base {
-      font-size: 0.75rem;
-      color: #8b949e;
-      margin-bottom: 2px;
-    }
-
-    .price-item .tint-add {
-      font-size: 0.72rem;
-      color: #c084fc;
-      margin-bottom: 3px;
-    }
-
-    .price-item .value {
-      font-size: 1.3rem;
-      font-weight: bold;
-      color: #3fb950;
-    }
-
-    .price-item .value.empty {
-      color: #30363d;
-      font-size: 1rem;
-    }
-
-    .price-item .unit {
-      font-size: 0.65rem;
-      color: #8b949e;
-      margin-top: 2px;
-    }
-
-    .no-result {
-      text-align: center;
-      padding: 20px;
-      color: #8b949e;
-      font-size: 0.9rem;
-      display: none;
-    }
-
-    .no-result.show { display: block; }
-
-    .reset-btn {
-      width: 100%;
-      padding: 10px;
-      background: transparent;
-      border: 1px solid #30363d;
-      border-radius: 8px;
-      color: #8b949e;
-      font-size: 0.85rem;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .reset-btn:hover {
-      border-color: #58a6ff;
-      color: #58a6ff;
-    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Hiragino Sans','Yu Gothic',sans-serif;background:#0d1117;color:#e6edf3;min-height:100vh}
+    header{background:linear-gradient(135deg,#0f3460,#16213e);padding:20px 16px 16px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.4)}
+    header h1{font-size:1.4rem;letter-spacing:.08em;color:#58a6ff}
+    header p{font-size:.75rem;color:#8b949e;margin-top:4px}
+    .container{max-width:480px;margin:0 auto;padding:16px}
+    .card{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:16px;margin-bottom:16px}
+    .card h2{font-size:.8rem;color:#8b949e;letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px}
+    .filter-group{display:flex;flex-direction:column;gap:12px}
+    label{font-size:.85rem;color:#8b949e;display:block;margin-bottom:4px}
+    select{width:100%;padding:10px 12px;background:#0d1117;border:1px solid #30363d;border-radius:8px;color:#e6edf3;font-size:.9rem;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238b949e' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;cursor:pointer;transition:border-color .2s}
+    select:focus{outline:none;border-color:#58a6ff}
+    select:disabled{opacity:.4;cursor:not-allowed}
+    .tint-wrap label{color:#c084fc}
+    .tint-wrap select{border-color:#553a7a}
+    .tint-wrap select:focus{border-color:#c084fc}
+    .result-card{background:#161b22;border:1px solid #30363d;border-radius:12px;overflow:hidden;margin-bottom:16px;display:none}
+    .result-card.show{display:block}
+    .result-header{background:linear-gradient(135deg,#0f3460,#1a3a5c);padding:12px 16px}
+    .result-header .brand{font-size:.7rem;color:#58a6ff;letter-spacing:.12em;text-transform:uppercase}
+    .result-header .product{font-size:1rem;font-weight:bold;color:#e6edf3;margin-top:2px}
+    .result-header .tint-info{font-size:.75rem;color:#c084fc;margin-top:4px}
+    .badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.7rem;font-weight:bold;margin-top:4px;background:rgba(88,166,255,.2);color:#58a6ff;border:1px solid rgba(88,166,255,.3)}
+    .price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#30363d}
+    .price-item{background:#161b22;padding:14px 8px;text-align:center}
+    .price-item .label{font-size:.7rem;color:#8b949e;margin-bottom:4px;letter-spacing:.05em}
+    .price-item .base{font-size:.72rem;color:#8b949e;margin-bottom:2px}
+    .price-item .tint-add{font-size:.7rem;color:#c084fc;margin-bottom:3px}
+    .price-item .value{font-size:1.3rem;font-weight:bold;color:#3fb950}
+    .price-item .value.empty{color:#30363d;font-size:1rem}
+    .price-item .unit{font-size:.65rem;color:#8b949e;margin-top:2px}
+    .no-result{text-align:center;padding:20px;color:#8b949e;font-size:.9rem;display:none}
+    .no-result.show{display:block}
+    .reset-btn{width:100%;padding:10px;background:transparent;border:1px solid #30363d;border-radius:8px;color:#8b949e;font-size:.85rem;cursor:pointer;transition:all .2s}
+    .reset-btn:hover{border-color:#58a6ff;color:#58a6ff}
   </style>
 </head>
 <body>
-
 <header>
   <h1>🔍 レンズ価格表</h1>
   <p>NIKON</p>
 </header>
-
 <div class="container">
-
   <div class="card">
     <h2>🔽 品目を選択</h2>
     <div class="filter-group">
-
       <div>
-        <label>レンズタイプ</label>
-        <select id="sel-type">
+        <label>カテゴリー</label>
+        <select id="sel-cat">
           <option value="">-- 選択してください --</option>
-          <option value="CLEAR">CLEAR（クリア）</option>
-          <option value="PBUV">PBUV（紫外線カット）</option>
+          <optgroup label="SV 単焦点">
+            <option value="SV-C">CLEAR（クリア）</option>
+            <option value="SV-P">PBUV（紫外線カット）</option>
+            <option value="PHOTO">フォトクロミック（調光）</option>
+          </optgroup>
+          <optgroup label="ビューフィット CLEAR">
+            <option value="VF-C">ビューフィット CLEAR</option>
+            <option value="VF-C-INF">ビューフィット-INF CLEAR</option>
+          </optgroup>
+          <optgroup label="ビューフィット PBUV">
+            <option value="VF-P">ビューフィット PBUV</option>
+            <option value="VF-P-INF">ビューフィット-INF PBUV</option>
+          </optgroup>
+          <optgroup label="ビューフィット 調光">
+            <option value="VF-TR">ビューフィット Transitions TR8</option>
+            <option value="VF-TR-INF">ビューフィット-INF Transitions TR8</option>
+            <option value="VF-XT">ビューフィット Xtransitions</option>
+          </optgroup>
+          <optgroup label="NL（ニコンライト）">
+            <option value="NL">NL 単焦点</option>
+            <option value="NL-TR">NL 調光レンズ</option>
+          </optgroup>
         </select>
       </div>
-
       <div>
         <label>品種（モデル）</label>
         <select id="sel-model" disabled>
-          <option value="">-- タイプを先に選択 --</option>
+          <option value="">-- カテゴリーを先に選択 --</option>
         </select>
       </div>
-
       <div>
         <label>コート</label>
         <select id="sel-coat" disabled>
           <option value="">-- モデルを先に選択 --</option>
         </select>
       </div>
-
       <div class="tint-wrap">
         <label>🎨 染色</label>
         <select id="sel-tint" disabled>
           <option value="">-- コートを先に選択 --</option>
         </select>
       </div>
-
     </div>
   </div>
 
@@ -321,219 +134,342 @@
     </div>
   </div>
 
-  <div class="no-result" id="no-result">
-    該当する価格データがありません
-  </div>
-
+  <div class="no-result" id="no-result">該当する価格データがありません</div>
   <button class="reset-btn" onclick="resetAll()">↺ リセット</button>
-
 </div>
 
 <script>
 const DATA = [
-  {type:"CLEAR", model:"155AS", coat:"SC",   normal:310,  plus:null, special:null},
-  {type:"CLEAR", model:"160AS", coat:"ECC",  normal:350,  plus:550,  special:950},
-  {type:"CLEAR", model:"160AS", coat:"BEC",  normal:550,  plus:750,  special:1150},
-  {type:"CLEAR", model:"160AS", coat:"TC",   normal:null, plus:null, special:1150},
-  {type:"CLEAR", model:"160AS", coat:"DSV",  normal:null, plus:null, special:1550},
-  {type:"CLEAR", model:"160AS", coat:"TCUV", normal:750,  plus:950,  special:1350},
-  {type:"CLEAR", model:"160AS", coat:"BCUV", normal:null, plus:null, special:1950},
-  {type:"PBUV",  model:"160AS", coat:"ECC",  normal:null, plus:null, special:1650},
-  {type:"PBUV",  model:"160AS", coat:"BEC",  normal:null, plus:null, special:1850},
-  {type:"PBUV",  model:"160AS", coat:"TC",   normal:null, plus:null, special:1850},
-  {type:"PBUV",  model:"160AS", coat:"DSV",  normal:null, plus:null, special:2250},
-  {type:"PBUV",  model:"160AS", coat:"TCUV", normal:980,  plus:null, special:2050},
-  {type:"PBUV",  model:"160AS", coat:"BCUV", normal:null, plus:null, special:2650},
-  {type:"CLEAR", model:"167AS", coat:"ECC",  normal:650,  plus:850,  special:1150},
-  {type:"CLEAR", model:"167AS", coat:"BEC",  normal:null, plus:null, special:1350},
-  {type:"CLEAR", model:"167AS", coat:"TC",   normal:null, plus:null, special:1350},
-  {type:"CLEAR", model:"167AS", coat:"DSV",  normal:null, plus:null, special:1750},
-  {type:"CLEAR", model:"167AS", coat:"TCUV", normal:1050, plus:1250, special:1550},
-  {type:"CLEAR", model:"167AS", coat:"BCUV", normal:null, plus:null, special:2150},
-  {type:"PBUV",  model:"167AS", coat:"ECC",  normal:null, plus:null, special:1850},
-  {type:"PBUV",  model:"167AS", coat:"BEC",  normal:null, plus:null, special:2050},
-  {type:"PBUV",  model:"167AS", coat:"TC",   normal:null, plus:null, special:2050},
-  {type:"PBUV",  model:"167AS", coat:"DSV",  normal:null, plus:null, special:2450},
-  {type:"PBUV",  model:"167AS", coat:"TCUV", normal:1200, plus:null, special:2250},
-  {type:"PBUV",  model:"167AS", coat:"BCUV", normal:null, plus:null, special:2850},
-  {type:"CLEAR", model:"174AS", coat:"SC",   normal:900,  plus:1100, special:1400},
-  {type:"CLEAR", model:"174AS", coat:"BEC",  normal:null, plus:null, special:1600},
-  {type:"CLEAR", model:"174AS", coat:"TC",   normal:null, plus:null, special:1600},
-  {type:"CLEAR", model:"174AS", coat:"DSV",  normal:null, plus:null, special:2000},
-  {type:"CLEAR", model:"174AS", coat:"TCUV", normal:1300, plus:1500, special:1800},
-  {type:"CLEAR", model:"174AS", coat:"BCUV", normal:null, plus:null, special:2400},
-  {type:"CLEAR", model:"155SP", coat:"HCC",  normal:299,  plus:null, special:null},
-  {type:"PBUV",  model:"174AS", coat:"SC",   normal:null, plus:null, special:2100},
-  {type:"PBUV",  model:"174AS", coat:"BEC",  normal:null, plus:null, special:2300},
-  {type:"PBUV",  model:"174AS", coat:"TC",   normal:null, plus:null, special:2300},
-  {type:"PBUV",  model:"174AS", coat:"TCUV", normal:null, plus:null, special:2500},
-  {type:"PBUV",  model:"174AS", coat:"BCUV", normal:null, plus:null, special:3100},
-  {type:"CLEAR", model:"160SP", coat:"ECC",  normal:300,  plus:500,  special:800},
-  {type:"CLEAR", model:"160SP", coat:"BEC",  normal:null, plus:null, special:1000},
-  {type:"CLEAR", model:"160SP", coat:"TC",   normal:null, plus:null, special:1000},
-  {type:"CLEAR", model:"160SP", coat:"DSV",  normal:null, plus:null, special:1400},
-  {type:"CLEAR", model:"160SP", coat:"TCUV", normal:600,  plus:800,  special:1200},
-  {type:"CLEAR", model:"160SP", coat:"BCUV", normal:null, plus:null, special:1800},
-  {type:"PBUV",  model:"160SP", coat:"ECC",  normal:null, plus:null, special:2100},
-  {type:"PBUV",  model:"160SP", coat:"BEC",  normal:null, plus:null, special:2300},
-  {type:"PBUV",  model:"160SP", coat:"TC",   normal:null, plus:null, special:2300},
-  {type:"PBUV",  model:"160SP", coat:"TCUV", normal:null, plus:null, special:2500},
-  {type:"PBUV",  model:"160SP", coat:"BCUV", normal:null, plus:null, special:3100},
+  // SV CLEAR
+  {cat:"SV-C",model:"155AS",coat:"SC",normal:310,plus:null,special:null},
+  {cat:"SV-C",model:"160AS",coat:"ECC",normal:350,plus:550,special:950},
+  {cat:"SV-C",model:"160AS",coat:"BEC",normal:550,plus:750,special:1150},
+  {cat:"SV-C",model:"160AS",coat:"TC",normal:null,plus:null,special:1150},
+  {cat:"SV-C",model:"160AS",coat:"DSV",normal:null,plus:null,special:1550},
+  {cat:"SV-C",model:"160AS",coat:"TCUV",normal:750,plus:950,special:1350},
+  {cat:"SV-C",model:"160AS",coat:"BCUV",normal:null,plus:null,special:1950},
+  {cat:"SV-C",model:"167AS",coat:"ECC",normal:650,plus:850,special:1150},
+  {cat:"SV-C",model:"167AS",coat:"BEC",normal:null,plus:null,special:1350},
+  {cat:"SV-C",model:"167AS",coat:"TC",normal:null,plus:null,special:1350},
+  {cat:"SV-C",model:"167AS",coat:"DSV",normal:null,plus:null,special:1750},
+  {cat:"SV-C",model:"167AS",coat:"TCUV",normal:1050,plus:1250,special:1550},
+  {cat:"SV-C",model:"167AS",coat:"BCUV",normal:null,plus:null,special:2150},
+  {cat:"SV-C",model:"174AS",coat:"SC",normal:900,plus:1100,special:1400},
+  {cat:"SV-C",model:"174AS",coat:"BEC",normal:null,plus:null,special:1600},
+  {cat:"SV-C",model:"174AS",coat:"TC",normal:null,plus:null,special:1600},
+  {cat:"SV-C",model:"174AS",coat:"DSV",normal:null,plus:null,special:2000},
+  {cat:"SV-C",model:"174AS",coat:"TCUV",normal:1300,plus:1500,special:1800},
+  {cat:"SV-C",model:"174AS",coat:"BCUV",normal:null,plus:null,special:2400},
+  {cat:"SV-C",model:"155SP",coat:"HCC",normal:299,plus:null,special:null},
+  {cat:"SV-C",model:"160SP",coat:"ECC",normal:300,plus:500,special:800},
+  {cat:"SV-C",model:"160SP",coat:"BEC",normal:null,plus:null,special:1000},
+  {cat:"SV-C",model:"160SP",coat:"TC",normal:null,plus:null,special:1000},
+  {cat:"SV-C",model:"160SP",coat:"DSV",normal:null,plus:null,special:1400},
+  {cat:"SV-C",model:"160SP",coat:"TCUV",normal:600,plus:800,special:1200},
+  {cat:"SV-C",model:"160SP",coat:"BCUV",normal:null,plus:null,special:1800},
+  // SV PBUV
+  {cat:"SV-P",model:"160AS",coat:"ECC",normal:null,plus:null,special:1650},
+  {cat:"SV-P",model:"160AS",coat:"BEC",normal:null,plus:null,special:1850},
+  {cat:"SV-P",model:"160AS",coat:"TC",normal:null,plus:null,special:1850},
+  {cat:"SV-P",model:"160AS",coat:"DSV",normal:null,plus:null,special:2250},
+  {cat:"SV-P",model:"160AS",coat:"TCUV",normal:980,plus:null,special:2050},
+  {cat:"SV-P",model:"160AS",coat:"BCUV",normal:null,plus:null,special:2650},
+  {cat:"SV-P",model:"167AS",coat:"ECC",normal:null,plus:null,special:1850},
+  {cat:"SV-P",model:"167AS",coat:"BEC",normal:null,plus:null,special:2050},
+  {cat:"SV-P",model:"167AS",coat:"TC",normal:null,plus:null,special:2050},
+  {cat:"SV-P",model:"167AS",coat:"DSV",normal:null,plus:null,special:2450},
+  {cat:"SV-P",model:"167AS",coat:"TCUV",normal:1200,plus:null,special:2250},
+  {cat:"SV-P",model:"167AS",coat:"BCUV",normal:null,plus:null,special:2850},
+  {cat:"SV-P",model:"174AS",coat:"SC",normal:null,plus:null,special:2100},
+  {cat:"SV-P",model:"174AS",coat:"BEC",normal:null,plus:null,special:2300},
+  {cat:"SV-P",model:"174AS",coat:"TC",normal:null,plus:null,special:2300},
+  {cat:"SV-P",model:"174AS",coat:"TCUV",normal:null,plus:null,special:2500},
+  {cat:"SV-P",model:"174AS",coat:"BCUV",normal:null,plus:null,special:3100},
+  {cat:"SV-P",model:"160SP",coat:"ECC",normal:null,plus:null,special:2100},
+  {cat:"SV-P",model:"160SP",coat:"BEC",normal:null,plus:null,special:2300},
+  {cat:"SV-P",model:"160SP",coat:"TC",normal:null,plus:null,special:2300},
+  {cat:"SV-P",model:"160SP",coat:"TCUV",normal:null,plus:null,special:2500},
+  {cat:"SV-P",model:"160SP",coat:"BCUV",normal:null,plus:null,special:3100},
+  // フォトクロミック
+  {cat:"PHOTO",model:"155AS フォトクロミック(ブラウン/グレー)",coat:"SC",normal:750,plus:null,special:null},
+  {cat:"PHOTO",model:"160AS フォトクロミック(ブラウン/グレー)",coat:"SC",normal:1400,plus:1600,special:null},
+  // ビューフィット CLEAR nd1.60
+  {cat:"VF-C",model:"SVVF3 (nd1.60)",coat:"ECC",normal:null,plus:null,special:1765},
+  {cat:"VF-C",model:"SVVF3 (nd1.60)",coat:"RM",normal:null,plus:null,special:1765},
+  {cat:"VF-C",model:"SVVF3 (nd1.60)",coat:"BEC",normal:null,plus:null,special:2115},
+  {cat:"VF-C",model:"SVVF3 (nd1.60)",coat:"DSV",normal:null,plus:null,special:2365},
+  {cat:"VF-C",model:"SVVF3 (nd1.60)",coat:"SA",normal:null,plus:null,special:2365},
+  {cat:"VF-C",model:"SVVF3 (nd1.60)",coat:"SABL",normal:null,plus:null,special:2770},
+  {cat:"VF-C",model:"SVVF3 (nd1.60)",coat:"SABR",normal:null,plus:null,special:2770},
+  {cat:"VF-C",model:"SVVF3 (nd1.60)",coat:"SND",normal:null,plus:null,special:2665},
+  {cat:"VF-C",model:"SVVF3 (nd1.60)",coat:"SNS",normal:null,plus:null,special:3065},
+  {cat:"VF-C",model:"SVVF3 (nd1.60)",coat:"SNR",normal:null,plus:null,special:3065},
+  {cat:"VF-C",model:"SVVF3 (nd1.60)",coat:"SNRV",normal:null,plus:null,special:4165},
+  {cat:"VF-C",model:"SVVF3 (nd1.60)",coat:"PM",normal:null,plus:null,special:2515},
+  // ビューフィット CLEAR nd1.67
+  {cat:"VF-C",model:"SSVVF3 (nd1.67)",coat:"ECC",normal:null,plus:null,special:2165},
+  {cat:"VF-C",model:"SSVVF3 (nd1.67)",coat:"RM",normal:null,plus:null,special:2165},
+  {cat:"VF-C",model:"SSVVF3 (nd1.67)",coat:"BEC",normal:null,plus:null,special:2515},
+  {cat:"VF-C",model:"SSVVF3 (nd1.67)",coat:"DSV",normal:null,plus:null,special:2765},
+  {cat:"VF-C",model:"SSVVF3 (nd1.67)",coat:"SA",normal:null,plus:null,special:2765},
+  {cat:"VF-C",model:"SSVVF3 (nd1.67)",coat:"SABL",normal:null,plus:null,special:3170},
+  {cat:"VF-C",model:"SSVVF3 (nd1.67)",coat:"SABR",normal:null,plus:null,special:3170},
+  {cat:"VF-C",model:"SSVVF3 (nd1.67)",coat:"SND",normal:null,plus:null,special:3065},
+  {cat:"VF-C",model:"SSVVF3 (nd1.67)",coat:"SNS",normal:null,plus:null,special:3465},
+  {cat:"VF-C",model:"SSVVF3 (nd1.67)",coat:"SNR",normal:null,plus:null,special:3465},
+  {cat:"VF-C",model:"SSVVF3 (nd1.67)",coat:"SNRV",normal:null,plus:null,special:4563},
+  {cat:"VF-C",model:"SSVVF3 (nd1.67)",coat:"PM",normal:null,plus:null,special:2915},
+  // ビューフィット-INF CLEAR nd1.60
+  {cat:"VF-C-INF",model:"SVVF3-INF (nd1.60)",coat:"ECC",normal:null,plus:null,special:2590},
+  {cat:"VF-C-INF",model:"SVVF3-INF (nd1.60)",coat:"RM",normal:null,plus:null,special:2590},
+  {cat:"VF-C-INF",model:"SVVF3-INF (nd1.60)",coat:"BEC",normal:null,plus:null,special:2940},
+  {cat:"VF-C-INF",model:"SVVF3-INF (nd1.60)",coat:"DSV",normal:null,plus:null,special:3190},
+  {cat:"VF-C-INF",model:"SVVF3-INF (nd1.60)",coat:"SA",normal:null,plus:null,special:3160},
+  {cat:"VF-C-INF",model:"SVVF3-INF (nd1.60)",coat:"SABL",normal:null,plus:null,special:3595},
+  {cat:"VF-C-INF",model:"SVVF3-INF (nd1.60)",coat:"SABR",normal:null,plus:null,special:3595},
+  {cat:"VF-C-INF",model:"SVVF3-INF (nd1.60)",coat:"SND",normal:null,plus:null,special:3490},
+  {cat:"VF-C-INF",model:"SVVF3-INF (nd1.60)",coat:"SNS",normal:null,plus:null,special:3890},
+  {cat:"VF-C-INF",model:"SVVF3-INF (nd1.60)",coat:"SNR",normal:null,plus:null,special:3890},
+  {cat:"VF-C-INF",model:"SVVF3-INF (nd1.60)",coat:"SNRV",normal:null,plus:null,special:4990},
+  {cat:"VF-C-INF",model:"SVVF3-INF (nd1.60)",coat:"PM",normal:null,plus:null,special:3340},
+  // ビューフィット-INF CLEAR nd1.67
+  {cat:"VF-C-INF",model:"SSVVF4INF (nd1.67)",coat:"ECC",normal:null,plus:null,special:3060},
+  {cat:"VF-C-INF",model:"SSVVF4INF (nd1.67)",coat:"RM",normal:null,plus:null,special:3060},
+  {cat:"VF-C-INF",model:"SSVVF4INF (nd1.67)",coat:"BEC",normal:null,plus:null,special:3410},
+  {cat:"VF-C-INF",model:"SSVVF4INF (nd1.67)",coat:"DSV",normal:null,plus:null,special:3660},
+  {cat:"VF-C-INF",model:"SSVVF4INF (nd1.67)",coat:"SA",normal:null,plus:null,special:3660},
+  {cat:"VF-C-INF",model:"SSVVF4INF (nd1.67)",coat:"SABL",normal:null,plus:null,special:4065},
+  {cat:"VF-C-INF",model:"SSVVF4INF (nd1.67)",coat:"SABR",normal:null,plus:null,special:4065},
+  {cat:"VF-C-INF",model:"SSVVF4INF (nd1.67)",coat:"SND",normal:null,plus:null,special:3960},
+  {cat:"VF-C-INF",model:"SSVVF4INF (nd1.67)",coat:"SNS",normal:null,plus:null,special:4360},
+  {cat:"VF-C-INF",model:"SSVVF4INF (nd1.67)",coat:"SNR",normal:null,plus:null,special:4360},
+  {cat:"VF-C-INF",model:"SSVVF4INF (nd1.67)",coat:"SNRV",normal:null,plus:null,special:5460},
+  {cat:"VF-C-INF",model:"SSVVF4INF (nd1.67)",coat:"PM",normal:null,plus:null,special:3810},
+  // ビューフィット-INF CLEAR nd1.74
+  {cat:"VF-C-INF",model:"SSVVF5INF (nd1.74)",coat:"ECC",normal:null,plus:null,special:3530},
+  {cat:"VF-C-INF",model:"SSVVF5INF (nd1.74)",coat:"RM",normal:null,plus:null,special:3530},
+  {cat:"VF-C-INF",model:"SSVVF5INF (nd1.74)",coat:"BEC",normal:null,plus:null,special:3880},
+  {cat:"VF-C-INF",model:"SSVVF5INF (nd1.74)",coat:"DSV",normal:null,plus:null,special:4130},
+  {cat:"VF-C-INF",model:"SSVVF5INF (nd1.74)",coat:"SA",normal:null,plus:null,special:4130},
+  {cat:"VF-C-INF",model:"SSVVF5INF (nd1.74)",coat:"SABL",normal:null,plus:null,special:4535},
+  {cat:"VF-C-INF",model:"SSVVF5INF (nd1.74)",coat:"SABR",normal:null,plus:null,special:4535},
+  {cat:"VF-C-INF",model:"SSVVF5INF (nd1.74)",coat:"SND",normal:null,plus:null,special:4430},
+  {cat:"VF-C-INF",model:"SSVVF5INF (nd1.74)",coat:"SNS",normal:null,plus:null,special:4830},
+  {cat:"VF-C-INF",model:"SSVVF5INF (nd1.74)",coat:"SNR",normal:null,plus:null,special:4830},
+  {cat:"VF-C-INF",model:"SSVVF5INF (nd1.74)",coat:"SNRV",normal:null,plus:null,special:5930},
+  {cat:"VF-C-INF",model:"SSVVF5INF (nd1.74)",coat:"PM",normal:null,plus:null,special:4280},
+  // ビューフィット PBUV nd1.60
+  {cat:"VF-P",model:"SSVVF3 PBUV (nd1.60)",coat:"ECC",normal:null,plus:null,special:2465},
+  {cat:"VF-P",model:"SSVVF3 PBUV (nd1.60)",coat:"RM",normal:null,plus:null,special:2465},
+  {cat:"VF-P",model:"SSVVF3 PBUV (nd1.60)",coat:"BEC",normal:null,plus:null,special:2815},
+  {cat:"VF-P",model:"SSVVF3 PBUV (nd1.60)",coat:"DSV",normal:null,plus:null,special:3065},
+  {cat:"VF-P",model:"SSVVF3 PBUV (nd1.60)",coat:"SA",normal:null,plus:null,special:3065},
+  {cat:"VF-P",model:"SSVVF3 PBUV (nd1.60)",coat:"SABL",normal:null,plus:null,special:3470},
+  {cat:"VF-P",model:"SSVVF3 PBUV (nd1.60)",coat:"SND",normal:null,plus:null,special:3365},
+  {cat:"VF-P",model:"SSVVF3 PBUV (nd1.60)",coat:"SNS",normal:null,plus:null,special:3765},
+  {cat:"VF-P",model:"SSVVF3 PBUV (nd1.60)",coat:"PM",normal:null,plus:null,special:3215},
+  // ビューフィット PBUV nd1.67
+  {cat:"VF-P",model:"SSVVF4 PBUV (nd1.67)",coat:"ECC",normal:null,plus:null,special:2865},
+  {cat:"VF-P",model:"SSVVF4 PBUV (nd1.67)",coat:"RM",normal:null,plus:null,special:2865},
+  {cat:"VF-P",model:"SSVVF4 PBUV (nd1.67)",coat:"BEC",normal:null,plus:null,special:3215},
+  {cat:"VF-P",model:"SSVVF4 PBUV (nd1.67)",coat:"DSV",normal:null,plus:null,special:3465},
+  {cat:"VF-P",model:"SSVVF4 PBUV (nd1.67)",coat:"SA",normal:null,plus:null,special:3465},
+  {cat:"VF-P",model:"SSVVF4 PBUV (nd1.67)",coat:"SABL",normal:null,plus:null,special:3870},
+  {cat:"VF-P",model:"SSVVF4 PBUV (nd1.67)",coat:"SND",normal:null,plus:null,special:3765},
+  {cat:"VF-P",model:"SSVVF4 PBUV (nd1.67)",coat:"SNS",normal:null,plus:null,special:4165},
+  {cat:"VF-P",model:"SSVVF4 PBUV (nd1.67)",coat:"PM",normal:null,plus:null,special:3615},
+  // ビューフィット-INF PBUV nd1.60
+  {cat:"VF-P-INF",model:"SVVF3-INF PBUV (nd1.60)",coat:"ECC",normal:null,plus:null,special:3290},
+  {cat:"VF-P-INF",model:"SVVF3-INF PBUV (nd1.60)",coat:"RM",normal:null,plus:null,special:3290},
+  {cat:"VF-P-INF",model:"SVVF3-INF PBUV (nd1.60)",coat:"BEC",normal:null,plus:null,special:3640},
+  {cat:"VF-P-INF",model:"SVVF3-INF PBUV (nd1.60)",coat:"DSV",normal:null,plus:null,special:3890},
+  {cat:"VF-P-INF",model:"SVVF3-INF PBUV (nd1.60)",coat:"SA",normal:null,plus:null,special:3890},
+  {cat:"VF-P-INF",model:"SVVF3-INF PBUV (nd1.60)",coat:"SABL",normal:null,plus:null,special:4295},
+  {cat:"VF-P-INF",model:"SVVF3-INF PBUV (nd1.60)",coat:"SND",normal:null,plus:null,special:4190},
+  {cat:"VF-P-INF",model:"SVVF3-INF PBUV (nd1.60)",coat:"SNS",normal:null,plus:null,special:4590},
+  {cat:"VF-P-INF",model:"SVVF3-INF PBUV (nd1.60)",coat:"PM",normal:null,plus:null,special:4040},
+  // ビューフィット-INF PBUV nd1.67
+  {cat:"VF-P-INF",model:"SSVVF4INF PBUV (nd1.67)",coat:"ECC",normal:null,plus:null,special:3760},
+  {cat:"VF-P-INF",model:"SSVVF4INF PBUV (nd1.67)",coat:"RM",normal:null,plus:null,special:3760},
+  {cat:"VF-P-INF",model:"SSVVF4INF PBUV (nd1.67)",coat:"BEC",normal:null,plus:null,special:4110},
+  {cat:"VF-P-INF",model:"SSVVF4INF PBUV (nd1.67)",coat:"DSV",normal:null,plus:null,special:4360},
+  {cat:"VF-P-INF",model:"SSVVF4INF PBUV (nd1.67)",coat:"SA",normal:null,plus:null,special:4360},
+  {cat:"VF-P-INF",model:"SSVVF4INF PBUV (nd1.67)",coat:"SABL",normal:null,plus:null,special:4765},
+  {cat:"VF-P-INF",model:"SSVVF4INF PBUV (nd1.67)",coat:"SND",normal:null,plus:null,special:4660},
+  {cat:"VF-P-INF",model:"SSVVF4INF PBUV (nd1.67)",coat:"SNS",normal:null,plus:null,special:5060},
+  {cat:"VF-P-INF",model:"SSVVF4INF PBUV (nd1.67)",coat:"PM",normal:null,plus:null,special:4510},
+  // ビューフィット-INF PBUV nd1.74
+  {cat:"VF-P-INF",model:"SSVVF5INF PBUV (nd1.74)",coat:"ECC",normal:null,plus:null,special:4230},
+  {cat:"VF-P-INF",model:"SSVVF5INF PBUV (nd1.74)",coat:"RM",normal:null,plus:null,special:4230},
+  {cat:"VF-P-INF",model:"SSVVF5INF PBUV (nd1.74)",coat:"BEC",normal:null,plus:null,special:4580},
+  {cat:"VF-P-INF",model:"SSVVF5INF PBUV (nd1.74)",coat:"DSV",normal:null,plus:null,special:4830},
+  {cat:"VF-P-INF",model:"SSVVF5INF PBUV (nd1.74)",coat:"SA",normal:null,plus:null,special:4830},
+  {cat:"VF-P-INF",model:"SSVVF5INF PBUV (nd1.74)",coat:"SABL",normal:null,plus:null,special:5235},
+  {cat:"VF-P-INF",model:"SSVVF5INF PBUV (nd1.74)",coat:"SND",normal:null,plus:null,special:5130},
+  {cat:"VF-P-INF",model:"SSVVF5INF PBUV (nd1.74)",coat:"SNS",normal:null,plus:null,special:5530},
+  // ビューフィット Transitions TR8
+  {cat:"VF-TR",model:"SSVVF3 TR8(ブラウン/グレー)",coat:"ECC",normal:null,plus:null,special:3765},
+  {cat:"VF-TR",model:"SSVVF3 TR8(ブラウン/グレー)",coat:"RM",normal:null,plus:null,special:3765},
+  {cat:"VF-TR",model:"SSVVF3 TR8(ブラウン/グレー)",coat:"BEC",normal:null,plus:null,special:4115},
+  {cat:"VF-TR",model:"SSVVF3 TR8(ブラウン/グレー)",coat:"DSV",normal:null,plus:null,special:4365},
+  {cat:"VF-TR",model:"SSVVF3 TR8(ブラウン/グレー)",coat:"SA",normal:null,plus:null,special:4365},
+  {cat:"VF-TR",model:"SSVVF3 TR8(ブラウン/グレー)",coat:"SABL",normal:null,plus:null,special:4770},
+  {cat:"VF-TR",model:"SSVVF3 TR8(ブラウン/グレー)",coat:"SND",normal:null,plus:null,special:4665},
+  {cat:"VF-TR",model:"SSVVF3 TR8(ブラウン/グレー)",coat:"SNS",normal:null,plus:null,special:5065},
+  {cat:"VF-TR",model:"SSVVF4 TR8(ブラウン/グレー)",coat:"ECC",normal:null,plus:null,special:4165},
+  {cat:"VF-TR",model:"SSVVF4 TR8(ブラウン/グレー)",coat:"RM",normal:null,plus:null,special:4165},
+  {cat:"VF-TR",model:"SSVVF4 TR8(ブラウン/グレー)",coat:"BEC",normal:null,plus:null,special:4515},
+  {cat:"VF-TR",model:"SSVVF4 TR8(ブラウン/グレー)",coat:"DSV",normal:null,plus:null,special:4765},
+  {cat:"VF-TR",model:"SSVVF4 TR8(ブラウン/グレー)",coat:"SA",normal:null,plus:null,special:4765},
+  {cat:"VF-TR",model:"SSVVF4 TR8(ブラウン/グレー)",coat:"SABL",normal:null,plus:null,special:5170},
+  {cat:"VF-TR",model:"SSVVF4 TR8(ブラウン/グレー)",coat:"SND",normal:null,plus:null,special:5065},
+  {cat:"VF-TR",model:"SSVVF4 TR8(ブラウン/グレー)",coat:"SNS",normal:null,plus:null,special:5465},
+  // ビューフィット-INF Transitions TR8
+  {cat:"VF-TR-INF",model:"SVVF3-INF TR8(ブラウン/グレー)",coat:"ECC",normal:null,plus:null,special:4840},
+  {cat:"VF-TR-INF",model:"SVVF3-INF TR8(ブラウン/グレー)",coat:"BEC",normal:null,plus:null,special:5190},
+  {cat:"VF-TR-INF",model:"SVVF3-INF TR8(ブラウン/グレー)",coat:"DSV",normal:null,plus:null,special:5440},
+  {cat:"VF-TR-INF",model:"SVVF3-INF TR8(ブラウン/グレー)",coat:"SA",normal:null,plus:null,special:5440},
+  {cat:"VF-TR-INF",model:"SVVF3-INF TR8(ブラウン/グレー)",coat:"SABL",normal:null,plus:null,special:5845},
+  {cat:"VF-TR-INF",model:"SVVF3-INF TR8(ブラウン/グレー)",coat:"SND",normal:null,plus:null,special:5740},
+  {cat:"VF-TR-INF",model:"SVVF3-INF TR8(ブラウン/グレー)",coat:"SNS",normal:null,plus:null,special:6140},
+  {cat:"VF-TR-INF",model:"SVVF3-INF TR8(ブラウン/グレー)",coat:"BM",normal:null,plus:null,special:4840},
+  {cat:"VF-TR-INF",model:"SVVF3-INF TR8(ブラウン/グレー)",coat:"SM",normal:null,plus:null,special:5590},
+  {cat:"VF-TR-INF",model:"SSVVF4INF TR8(ブラウン/グレー)",coat:"ECC",normal:null,plus:null,special:5660},
+  {cat:"VF-TR-INF",model:"SSVVF4INF TR8(ブラウン/グレー)",coat:"DSV",normal:null,plus:null,special:5910},
+  {cat:"VF-TR-INF",model:"SSVVF4INF TR8(ブラウン/グレー)",coat:"SA",normal:null,plus:null,special:5910},
+  {cat:"VF-TR-INF",model:"SSVVF4INF TR8(ブラウン/グレー)",coat:"SABL",normal:null,plus:null,special:6315},
+  {cat:"VF-TR-INF",model:"SSVVF4INF TR8(ブラウン/グレー)",coat:"SND",normal:null,plus:null,special:6210},
+  {cat:"VF-TR-INF",model:"SSVVF4INF TR8(ブラウン/グレー)",coat:"SNS",normal:null,plus:null,special:6610},
+  {cat:"VF-TR-INF",model:"SSVVF4INF TR8(ブラウン/グレー)",coat:"BM",normal:null,plus:null,special:5310},
+  {cat:"VF-TR-INF",model:"SSVVF4INF TR8(ブラウン/グレー)",coat:"SM",normal:null,plus:null,special:6060},
+  // ビューフィット Xtransitions
+  {cat:"VF-XT",model:"SSVVF3 Xtransitions(ブラウン/グレー)",coat:"ECC",normal:null,plus:null,special:4015},
+  {cat:"VF-XT",model:"SSVVF3 Xtransitions(ブラウン/グレー)",coat:"BEC",normal:null,plus:null,special:4365},
+  {cat:"VF-XT",model:"SSVVF3 Xtransitions(ブラウン/グレー)",coat:"DSV",normal:null,plus:null,special:4615},
+  {cat:"VF-XT",model:"SSVVF3 Xtransitions(ブラウン/グレー)",coat:"SA",normal:null,plus:null,special:4615},
+  {cat:"VF-XT",model:"SSVVF3 Xtransitions(ブラウン/グレー)",coat:"SABL",normal:null,plus:null,special:5020},
+  {cat:"VF-XT",model:"SSVVF3 Xtransitions(ブラウン/グレー)",coat:"SND",normal:null,plus:null,special:4915},
+  {cat:"VF-XT",model:"SSVVF3 Xtransitions(ブラウン/グレー)",coat:"SNS",normal:null,plus:null,special:5315},
+  {cat:"VF-XT",model:"SSVVF3 Xtransitions(ブラウン/グレー)",coat:"BM",normal:null,plus:null,special:4015},
+  {cat:"VF-XT",model:"SSVVF3 Xtransitions(ブラウン/グレー)",coat:"SM",normal:null,plus:null,special:4765},
+  {cat:"VF-XT",model:"SSVVF4 Xtransitions(ブラウン/グレー)",coat:"ECC",normal:null,plus:null,special:4415},
+  {cat:"VF-XT",model:"SSVVF4 Xtransitions(ブラウン/グレー)",coat:"BEC",normal:null,plus:null,special:4765},
+  {cat:"VF-XT",model:"SSVVF4 Xtransitions(ブラウン/グレー)",coat:"DSV",normal:null,plus:null,special:5015},
+  {cat:"VF-XT",model:"SSVVF4 Xtransitions(ブラウン/グレー)",coat:"SA",normal:null,plus:null,special:5015},
+  {cat:"VF-XT",model:"SSVVF4 Xtransitions(ブラウン/グレー)",coat:"SABL",normal:9620,plus:null,special:5420},
+  {cat:"VF-XT",model:"SSVVF4 Xtransitions(ブラウン/グレー)",coat:"SND",normal:null,plus:null,special:5315},
+  {cat:"VF-XT",model:"SSVVF4 Xtransitions(ブラウン/グレー)",coat:"SNS",normal:null,plus:null,special:5715},
+  {cat:"VF-XT",model:"SSVVF4 Xtransitions(ブラウン/グレー)",coat:"BM",normal:null,plus:null,special:4415},
+  {cat:"VF-XT",model:"SSVVF4 Xtransitions(ブラウン/グレー)",coat:"SM",normal:null,plus:null,special:5165},
+  // NL単焦点
+  {cat:"NL",model:"NL3-AS",coat:"ECC",normal:1142,plus:null,special:null},
+  {cat:"NL",model:"NL3-AS",coat:"SA",normal:2020,plus:null,special:null},
+  {cat:"NL",model:"NL4-AS",coat:"ECC",normal:1343,plus:null,special:null},
+  {cat:"NL",model:"NL4-AS",coat:"SA",normal:2229,plus:null,special:null},
+  {cat:"NL",model:"NL5-AS",coat:"ECC",normal:1908,plus:null,special:null},
+  {cat:"NL",model:"NL5-AS",coat:"SA",normal:2909,plus:null,special:null},
+  // NL調光
+  {cat:"NL-TR",model:"NL3-AS TransitionsGens",coat:"ECC/TGNS",normal:2800,plus:null,special:null},
+  {cat:"NL-TR",model:"NL3-AS Transitions Signature",coat:"ECC",normal:2500,plus:null,special:null},
 ];
 
-const TINTS = [
-  {label:"なし",         price:0},
-  {label:"染色",         price:450},
-  {label:"ツインカラー", price:675},
-  {label:"見本染色",     price:650},
+const TINTS=[
+  {label:"なし",price:0},
+  {label:"染色",price:450},
+  {label:"ツインカラー",price:675},
+  {label:"見本染色",price:650},
 ];
 
-const selType  = document.getElementById('sel-type');
-const selModel = document.getElementById('sel-model');
-const selCoat  = document.getElementById('sel-coat');
-const selTint  = document.getElementById('sel-tint');
+const selCat=document.getElementById('sel-cat');
+const selModel=document.getElementById('sel-model');
+const selCoat=document.getElementById('sel-coat');
+const selTint=document.getElementById('sel-tint');
 
-selType.addEventListener('change', () => {
-  const type = selType.value;
-  selModel.innerHTML = '<option value="">-- 選択してください --</option>';
-  selCoat.innerHTML  = '<option value="">-- モデルを先に選択 --</option>';
-  selTint.innerHTML  = '<option value="">-- コートを先に選択 --</option>';
-  selModel.disabled = !type;
-  selCoat.disabled  = true;
-  selTint.disabled  = true;
+selCat.addEventListener('change',()=>{
+  const cat=selCat.value;
+  selModel.innerHTML='<option value="">-- 選択してください --</option>';
+  selCoat.innerHTML='<option value="">-- モデルを先に選択 --</option>';
+  selTint.innerHTML='<option value="">-- コートを先に選択 --</option>';
+  selModel.disabled=!cat; selCoat.disabled=true; selTint.disabled=true;
   hideResult();
-  if (!type) return;
-  const models = [...new Set(DATA.filter(d => d.type === type).map(d => d.model))];
-  models.forEach(m => {
-    const o = document.createElement('option');
-    o.value = m; o.textContent = m;
-    selModel.appendChild(o);
-  });
+  if(!cat)return;
+  const models=[...new Set(DATA.filter(d=>d.cat===cat).map(d=>d.model))];
+  models.forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=m;selModel.appendChild(o);});
 });
 
-selModel.addEventListener('change', () => {
-  const type  = selType.value;
-  const model = selModel.value;
-  selCoat.innerHTML = '<option value="">-- 選択してください --</option>';
-  selTint.innerHTML = '<option value="">-- コートを先に選択 --</option>';
-  selCoat.disabled  = !model;
-  selTint.disabled  = true;
+selModel.addEventListener('change',()=>{
+  const cat=selCat.value,model=selModel.value;
+  selCoat.innerHTML='<option value="">-- 選択してください --</option>';
+  selTint.innerHTML='<option value="">-- コートを先に選択 --</option>';
+  selCoat.disabled=!model; selTint.disabled=true;
   hideResult();
-  if (!model) return;
-  const coats = [...new Set(DATA.filter(d => d.type === type && d.model === model).map(d => d.coat))];
-  coats.forEach(c => {
-    const o = document.createElement('option');
-    o.value = c; o.textContent = c;
-    selCoat.appendChild(o);
-  });
+  if(!model)return;
+  const coats=[...new Set(DATA.filter(d=>d.cat===cat&&d.model===model).map(d=>d.coat))];
+  coats.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;selCoat.appendChild(o);});
 });
 
-selCoat.addEventListener('change', () => {
-  const coat = selCoat.value;
-  selTint.innerHTML = '<option value="">-- 選択してください --</option>';
-  selTint.disabled  = !coat;
-  hideResult();
-  if (!coat) return;
-  TINTS.forEach((t, i) => {
-    const o = document.createElement('option');
-    o.value = i;
-    o.textContent = t.price === 0 ? `${t.label}　（＋0円）` : `${t.label}　（＋${t.price.toLocaleString()}円）`;
+selCoat.addEventListener('change',()=>{
+  const coat=selCoat.value;
+  selTint.innerHTML='<option value="">-- 選択してください --</option>';
+  selTint.disabled=!coat; hideResult();
+  if(!coat)return;
+  TINTS.forEach((t,i)=>{
+    const o=document.createElement('option');
+    o.value=i;
+    o.textContent=t.price===0?`${t.label}　（＋0円）`:`${t.label}　（＋${t.price.toLocaleString()}円）`;
     selTint.appendChild(o);
   });
 });
 
-selTint.addEventListener('change', () => {
-  const type  = selType.value;
-  const model = selModel.value;
-  const coat  = selCoat.value;
-  const tIdx  = selTint.value;
-  if (tIdx === '') { hideResult(); return; }
-
-  const row  = DATA.find(d => d.type === type && d.model === model && d.coat === coat);
-  const tint = TINTS[parseInt(tIdx)];
-  showResult(row, type, model, coat, tint);
+selTint.addEventListener('change',()=>{
+  const cat=selCat.value,model=selModel.value,coat=selCoat.value,tIdx=selTint.value;
+  if(tIdx===''){hideResult();return;}
+  const row=DATA.find(d=>d.cat===cat&&d.model===model&&d.coat===coat);
+  const tint=TINTS[parseInt(tIdx)];
+  showResult(row,model,coat,tint,cat);
 });
 
-function fmt(v) {
-  return v != null ? v.toLocaleString() : null;
-}
-
-function showResult(row, type, model, coat, tint) {
-  const card    = document.getElementById('result-card');
-  const noRes   = document.getElementById('no-result');
-
-  if (!row) {
-    card.classList.remove('show');
-    noRes.classList.add('show');
-    return;
-  }
-
-  document.getElementById('result-title').textContent = `SV ${model} / ${coat}`;
-  document.getElementById('result-tint-info').textContent =
-    tint.price === 0 ? '染色なし' : `🎨 ${tint.label} ＋${tint.price.toLocaleString()}円`;
-
-  const badge = document.getElementById('result-badge');
-  badge.textContent = type;
-  badge.className   = 'badge ' + type.toLowerCase();
-
-  const setPrice = (baseEl, tintEl, valEl, base) => {
-    if (base != null) {
-      const total = base + tint.price;
-      baseEl.textContent = tint.price > 0 ? `レンズ ${base.toLocaleString()}円` : '';
-      tintEl.textContent = tint.price > 0 ? `染色 ＋${tint.price.toLocaleString()}円` : '';
-      valEl.textContent  = total.toLocaleString();
-      valEl.classList.remove('empty');
-    } else {
-      baseEl.textContent = '';
-      tintEl.textContent = '';
-      valEl.textContent  = '－';
-      valEl.classList.add('empty');
+function showResult(row,model,coat,tint,cat){
+  const card=document.getElementById('result-card');
+  const noRes=document.getElementById('no-result');
+  if(!row){card.classList.remove('show');noRes.classList.add('show');return;}
+  document.getElementById('result-title').textContent=`${model} / ${coat}`;
+  document.getElementById('result-tint-info').textContent=
+    tint.price===0?'染色なし':`🎨 ${tint.label} ＋${tint.price.toLocaleString()}円`;
+  const badge=document.getElementById('result-badge');
+  badge.textContent=cat; badge.className='badge';
+  const setP=(bEl,tEl,vEl,base)=>{
+    if(base!=null){
+      const total=base+tint.price;
+      bEl.textContent=tint.price>0?`レンズ ${base.toLocaleString()}円`:'';
+      tEl.textContent=tint.price>0?`染色 ＋${tint.price.toLocaleString()}円`:'';
+      vEl.textContent=total.toLocaleString(); vEl.classList.remove('empty');
+    }else{
+      bEl.textContent=''; tEl.textContent='';
+      vEl.textContent='－'; vEl.classList.add('empty');
     }
   };
-
-  setPrice(
-    document.getElementById('base-normal'),
-    document.getElementById('tint-normal'),
-    document.getElementById('price-normal'),
-    row.normal
-  );
-  setPrice(
-    document.getElementById('base-plus'),
-    document.getElementById('tint-plus'),
-    document.getElementById('price-plus'),
-    row.plus
-  );
-  setPrice(
-    document.getElementById('base-special'),
-    document.getElementById('tint-special'),
-    document.getElementById('price-special'),
-    row.special
-  );
-
-  card.classList.add('show');
-  noRes.classList.remove('show');
+  setP(document.getElementById('base-normal'),document.getElementById('tint-normal'),document.getElementById('price-normal'),row.normal);
+  setP(document.getElementById('base-plus'),document.getElementById('tint-plus'),document.getElementById('price-plus'),row.plus);
+  setP(document.getElementById('base-special'),document.getElementById('tint-special'),document.getElementById('price-special'),row.special);
+  card.classList.add('show'); noRes.classList.remove('show');
 }
 
-function hideResult() {
+function hideResult(){
   document.getElementById('result-card').classList.remove('show');
   document.getElementById('no-result').classList.remove('show');
 }
 
-function resetAll() {
-  selType.value  = '';
-  selModel.innerHTML = '<option value="">-- タイプを先に選択 --</option>';
-  selCoat.innerHTML  = '<option value="">-- モデルを先に選択 --</option>';
-  selTint.innerHTML  = '<option value="">-- コートを先に選択 --</option>';
-  selModel.disabled  = true;
-  selCoat.disabled   = true;
-  selTint.disabled   = true;
+function resetAll(){
+  selCat.value='';
+  selModel.innerHTML='<option value="">-- カテゴリーを先に選択 --</option>';
+  selCoat.innerHTML='<option value="">-- モデルを先に選択 --</option>';
+  selTint.innerHTML='<option value="">-- コートを先に選択 --</option>';
+  selModel.disabled=true; selCoat.disabled=true; selTint.disabled=true;
   hideResult();
 }
 
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js');
-}
+if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
 </script>
-
 </body>
 </html>
