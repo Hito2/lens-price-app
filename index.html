@@ -96,6 +96,17 @@
       cursor: not-allowed;
     }
 
+    /* 染色セレクト強調 */
+    .tint-wrap select {
+      border-color: #553a7a;
+    }
+    .tint-wrap select:focus {
+      border-color: #c084fc;
+    }
+    .tint-wrap label {
+      color: #c084fc;
+    }
+
     .result-card {
       background: #161b22;
       border: 1px solid #30363d;
@@ -122,10 +133,37 @@
     }
 
     .result-header .product {
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       font-weight: bold;
       color: #e6edf3;
       margin-top: 2px;
+    }
+
+    .result-header .tint-info {
+      font-size: 0.75rem;
+      color: #c084fc;
+      margin-top: 4px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: bold;
+      margin-top: 4px;
+    }
+
+    .badge.clear {
+      background: rgba(31, 111, 235, 0.2);
+      color: #58a6ff;
+      border: 1px solid rgba(88, 166, 255, 0.3);
+    }
+
+    .badge.pbuv {
+      background: rgba(63, 185, 80, 0.2);
+      color: #3fb950;
+      border: 1px solid rgba(63, 185, 80, 0.3);
     }
 
     .price-grid {
@@ -144,8 +182,20 @@
     .price-item .label {
       font-size: 0.7rem;
       color: #8b949e;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
       letter-spacing: 0.05em;
+    }
+
+    .price-item .base {
+      font-size: 0.75rem;
+      color: #8b949e;
+      margin-bottom: 2px;
+    }
+
+    .price-item .tint-add {
+      font-size: 0.72rem;
+      color: #c084fc;
+      margin-bottom: 3px;
     }
 
     .price-item .value {
@@ -173,30 +223,7 @@
       display: none;
     }
 
-    .no-result.show {
-      display: block;
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 20px;
-      font-size: 0.7rem;
-      font-weight: bold;
-      margin-top: 4px;
-    }
-
-    .badge.clear {
-      background: rgba(31, 111, 235, 0.2);
-      color: #58a6ff;
-      border: 1px solid rgba(88, 166, 255, 0.3);
-    }
-
-    .badge.pbuv {
-      background: rgba(63, 185, 80, 0.2);
-      color: #3fb950;
-      border: 1px solid rgba(63, 185, 80, 0.3);
-    }
+    .no-result.show { display: block; }
 
     .reset-btn {
       width: 100%;
@@ -252,6 +279,13 @@
         </select>
       </div>
 
+      <div class="tint-wrap">
+        <label>🎨 染色</label>
+        <select id="sel-tint" disabled>
+          <option value="">-- コートを先に選択 --</option>
+        </select>
+      </div>
+
     </div>
   </div>
 
@@ -259,21 +293,28 @@
     <div class="result-header">
       <div class="brand">NIKON レンズ</div>
       <div class="product" id="result-title"></div>
+      <div class="tint-info" id="result-tint-info"></div>
       <span class="badge" id="result-badge"></span>
     </div>
     <div class="price-grid">
       <div class="price-item">
         <div class="label">常価</div>
+        <div class="base" id="base-normal"></div>
+        <div class="tint-add" id="tint-normal"></div>
         <div class="value" id="price-normal">-</div>
         <div class="unit">円</div>
       </div>
       <div class="price-item">
         <div class="label">常価＋</div>
+        <div class="base" id="base-plus"></div>
+        <div class="tint-add" id="tint-plus"></div>
         <div class="value" id="price-plus">-</div>
         <div class="unit">円</div>
       </div>
       <div class="price-item">
         <div class="label">特注</div>
+        <div class="base" id="base-special"></div>
+        <div class="tint-add" id="tint-special"></div>
         <div class="value" id="price-special">-</div>
         <div class="unit">円</div>
       </div>
@@ -340,18 +381,27 @@ const DATA = [
   {type:"PBUV",  model:"160SP", coat:"BCUV", normal:null, plus:null, special:3100},
 ];
 
+const TINTS = [
+  {label:"なし",         price:0},
+  {label:"染色",         price:450},
+  {label:"ツインカラー", price:675},
+  {label:"見本染色",     price:650},
+];
+
 const selType  = document.getElementById('sel-type');
 const selModel = document.getElementById('sel-model');
 const selCoat  = document.getElementById('sel-coat');
+const selTint  = document.getElementById('sel-tint');
 
 selType.addEventListener('change', () => {
   const type = selType.value;
   selModel.innerHTML = '<option value="">-- 選択してください --</option>';
   selCoat.innerHTML  = '<option value="">-- モデルを先に選択 --</option>';
+  selTint.innerHTML  = '<option value="">-- コートを先に選択 --</option>';
   selModel.disabled = !type;
   selCoat.disabled  = true;
+  selTint.disabled  = true;
   hideResult();
-
   if (!type) return;
   const models = [...new Set(DATA.filter(d => d.type === type).map(d => d.model))];
   models.forEach(m => {
@@ -365,9 +415,10 @@ selModel.addEventListener('change', () => {
   const type  = selType.value;
   const model = selModel.value;
   selCoat.innerHTML = '<option value="">-- 選択してください --</option>';
+  selTint.innerHTML = '<option value="">-- コートを先に選択 --</option>';
   selCoat.disabled  = !model;
+  selTint.disabled  = true;
   hideResult();
-
   if (!model) return;
   const coats = [...new Set(DATA.filter(d => d.type === type && d.model === model).map(d => d.coat))];
   coats.forEach(c => {
@@ -378,28 +429,38 @@ selModel.addEventListener('change', () => {
 });
 
 selCoat.addEventListener('change', () => {
+  const coat = selCoat.value;
+  selTint.innerHTML = '<option value="">-- 選択してください --</option>';
+  selTint.disabled  = !coat;
+  hideResult();
+  if (!coat) return;
+  TINTS.forEach((t, i) => {
+    const o = document.createElement('option');
+    o.value = i;
+    o.textContent = t.price === 0 ? `${t.label}　（＋0円）` : `${t.label}　（＋${t.price.toLocaleString()}円）`;
+    selTint.appendChild(o);
+  });
+});
+
+selTint.addEventListener('change', () => {
   const type  = selType.value;
   const model = selModel.value;
   const coat  = selCoat.value;
-  if (!coat) { hideResult(); return; }
+  const tIdx  = selTint.value;
+  if (tIdx === '') { hideResult(); return; }
 
-  const row = DATA.find(d => d.type === type && d.model === model && d.coat === coat);
-  showResult(row, type, model, coat);
+  const row  = DATA.find(d => d.type === type && d.model === model && d.coat === coat);
+  const tint = TINTS[parseInt(tIdx)];
+  showResult(row, type, model, coat, tint);
 });
 
 function fmt(v) {
-  if (v == null) return null;
-  return v.toLocaleString();
+  return v != null ? v.toLocaleString() : null;
 }
 
-function showResult(row, type, model, coat) {
+function showResult(row, type, model, coat, tint) {
   const card    = document.getElementById('result-card');
   const noRes   = document.getElementById('no-result');
-  const title   = document.getElementById('result-title');
-  const badge   = document.getElementById('result-badge');
-  const pNormal = document.getElementById('price-normal');
-  const pPlus   = document.getElementById('price-plus');
-  const pSpec   = document.getElementById('price-special');
 
   if (!row) {
     card.classList.remove('show');
@@ -407,23 +468,47 @@ function showResult(row, type, model, coat) {
     return;
   }
 
-  title.textContent = `SV ${model} / ${coat}`;
+  document.getElementById('result-title').textContent = `SV ${model} / ${coat}`;
+  document.getElementById('result-tint-info').textContent =
+    tint.price === 0 ? '染色なし' : `🎨 ${tint.label} ＋${tint.price.toLocaleString()}円`;
+
+  const badge = document.getElementById('result-badge');
   badge.textContent = type;
   badge.className   = 'badge ' + type.toLowerCase();
 
-  const setPrice = (el, val) => {
-    if (val != null) {
-      el.textContent = fmt(val);
-      el.classList.remove('empty');
+  const setPrice = (baseEl, tintEl, valEl, base) => {
+    if (base != null) {
+      const total = base + tint.price;
+      baseEl.textContent = tint.price > 0 ? `レンズ ${base.toLocaleString()}円` : '';
+      tintEl.textContent = tint.price > 0 ? `染色 ＋${tint.price.toLocaleString()}円` : '';
+      valEl.textContent  = total.toLocaleString();
+      valEl.classList.remove('empty');
     } else {
-      el.textContent = '－';
-      el.classList.add('empty');
+      baseEl.textContent = '';
+      tintEl.textContent = '';
+      valEl.textContent  = '－';
+      valEl.classList.add('empty');
     }
   };
 
-  setPrice(pNormal, row.normal);
-  setPrice(pPlus,   row.plus);
-  setPrice(pSpec,   row.special);
+  setPrice(
+    document.getElementById('base-normal'),
+    document.getElementById('tint-normal'),
+    document.getElementById('price-normal'),
+    row.normal
+  );
+  setPrice(
+    document.getElementById('base-plus'),
+    document.getElementById('tint-plus'),
+    document.getElementById('price-plus'),
+    row.plus
+  );
+  setPrice(
+    document.getElementById('base-special'),
+    document.getElementById('tint-special'),
+    document.getElementById('price-special'),
+    row.special
+  );
 
   card.classList.add('show');
   noRes.classList.remove('show');
@@ -435,11 +520,13 @@ function hideResult() {
 }
 
 function resetAll() {
-  selType.value = '';
+  selType.value  = '';
   selModel.innerHTML = '<option value="">-- タイプを先に選択 --</option>';
   selCoat.innerHTML  = '<option value="">-- モデルを先に選択 --</option>';
+  selTint.innerHTML  = '<option value="">-- コートを先に選択 --</option>';
   selModel.disabled  = true;
   selCoat.disabled   = true;
+  selTint.disabled   = true;
   hideResult();
 }
 
