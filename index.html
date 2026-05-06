@@ -68,6 +68,11 @@
             <option value="NL-P">NL PBUV</option>
             <option value="NL-TR">NL 調光レンズ</option>
           </optgroup>
+          <optgroup label="HOYA">
+            <option value="HOYA-SV">HOYA 単焦点</option>
+            <option value="HOYA-SV-AS">HOYA 単焦点（ニュールックス）</option>
+            <option value="HOYA-BF">HOYA 遠近両用</option>
+          </optgroup>
           <optgroup label="フォトクロミック">
             <option value="PHOTO">フォトクロミック（調光）</option>
           </optgroup>
@@ -505,6 +510,29 @@ const DATA = [
   {cat:"NL-TR",model:"NL4-BAS Xtransitions Polarized",coat:"ECC",normal:null,plus:null,special:5500},
   {cat:"NL-TR",model:"NL4-BAS Xtransitions Polarized",coat:"BEC",normal:null,plus:null,special:5850},
   {cat:"NL-TR",model:"NL4-BAS Xtransitions Polarized",coat:"DSV",normal:null,plus:null,special:6100},
+  // HOYA 単焦点（球面/片面非球面）
+  {cat:"HOYA-SV",model:"SL82（SV160SP）",coat:"VP",normal:360,plus:null,special:null},
+  {cat:"HOYA-SV",model:"SL82 NF（SV160SP）",coat:"KUMORI291+",normal:2380,plus:null,special:null},
+  {cat:"HOYA-SV",model:"SL982（SV160AS）",coat:"VP",normal:540,plus:null,special:null},
+  {cat:"HOYA-SV",model:"SL982 NF（SV160AS）",coat:"KUMORI291+",normal:2680,plus:null,special:null},
+  {cat:"HOYA-SV",model:"SL903（SV167AS）",coat:"VP",normal:900,plus:null,special:null},
+  {cat:"HOYA-SV",model:"SL903 NF（SV167AS）",coat:"KUMORI291+",normal:3200,plus:null,special:null},
+  {cat:"HOYA-SV",model:"SL905（SV174AS）",coat:"VP",normal:1230,plus:null,special:null},
+  // HOYA 単焦点（両面非球面 / ニュールックス）
+  {cat:"HOYA-SV-AS",model:"ニュールックス1.60 SFT（NL3AS-SA）",coat:"耐キズ(SFT)",normal:1540,plus:null,special:null},
+  {cat:"HOYA-SV-AS",model:"ニュールックス1.67 SFT（NL4AS-SA）",coat:"耐キズ(SFT)",normal:1540,plus:null,special:null},
+  {cat:"HOYA-SV-AS",model:"ニュールックス1.74 SFT（NL5AS-SA）",coat:"耐キズ(SFT)",normal:3550,plus:null,special:null},
+  {cat:"HOYA-SV-AS",model:"ニュールックス1.60EP SFT（NL3DAS-SA）",coat:"耐キズ(SFT)",normal:3240,plus:null,special:null},
+  {cat:"HOYA-SV-AS",model:"ニュールックス1.67EP SFT（NL4DAS-SA）",coat:"耐キズ(SFT)",normal:null,plus:null,special:3760},
+  {cat:"HOYA-SV-AS",model:"ニュールックス1.74EP SFT（NL5DAS-SA）",coat:"耐キズ(SFT)",normal:null,plus:null,special:5620},
+  // HOYA 遠近両用
+  {cat:"HOYA-BF",model:"ジェネラックスHG Field 160",coat:"VP",normal:null,plus:null,special:1540},
+  {cat:"HOYA-BF",model:"ジェネラックスHG Field 160",coat:"KUMORI291+",normal:null,plus:null,special:2160},
+  {cat:"HOYA-BF",model:"スペクティHG160 FL（ロハス7160）",coat:"VP",normal:null,plus:null,special:1960},
+  {cat:"HOYA-BF",model:"スペクティHG160 FL（ロハス7160）",coat:"KUMORI291+",normal:null,plus:null,special:2580},
+  {cat:"HOYA-BF",model:"スペクティHG167 FL（ロハス7167）",coat:"VP",normal:null,plus:null,special:2670},
+  {cat:"HOYA-BF",model:"スペクティHG167 FL（ロハス7167）",coat:"KUMORI291+",normal:null,plus:null,special:3200},
+  {cat:"HOYA-BF",model:"スペクティHG174 FL（ロハス7174）",coat:"VP",normal:null,plus:null,special:3700},
 ];
 
 const TINTS=[
@@ -513,6 +541,14 @@ const TINTS=[
   {label:"ツインカラー",price:675},
   {label:"見本染色",price:650},
 ];
+const HOYA_TINTS=[
+  {label:"なし",price:0},
+  {label:"染色料金",price:500},
+  {label:"ツインカラー",price:800},
+  {label:"見本染色",price:730},
+  {label:"アシストカット",price:280},
+];
+function getTints(cat){return cat.startsWith('HOYA')?HOYA_TINTS:TINTS;}
 
 const selCat=document.getElementById('sel-cat');
 const selModel=document.getElementById('sel-model');
@@ -544,10 +580,11 @@ selModel.addEventListener('change',()=>{
 
 selCoat.addEventListener('change',()=>{
   const coat=selCoat.value;
+  const cat=selCat.value;
   selTint.innerHTML='<option value="">-- 選択してください --</option>';
   selTint.disabled=!coat; hideResult();
   if(!coat)return;
-  TINTS.forEach((t,i)=>{
+  getTints(cat).forEach((t,i)=>{
     const o=document.createElement('option');
     o.value=i;
     o.textContent=t.price===0?`${t.label}　（＋0円）`:`${t.label}　（＋${t.price.toLocaleString()}円）`;
@@ -559,7 +596,7 @@ selTint.addEventListener('change',()=>{
   const cat=selCat.value,model=selModel.value,coat=selCoat.value,tIdx=selTint.value;
   if(tIdx===''){hideResult();return;}
   const row=DATA.find(d=>d.cat===cat&&d.model===model&&d.coat===coat);
-  const tint=TINTS[parseInt(tIdx)];
+  const tint=getTints(cat)[parseInt(tIdx)];
   showResult(row,model,coat,tint,cat);
 });
 
