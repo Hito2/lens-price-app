@@ -49,46 +49,24 @@
 <body>
 <header>
   <h1>🔍 レンズ価格表</h1>
-  <p>NIKON</p>
+  <p id="header-maker">メーカーを選択してください</p>
 </header>
 <div class="container">
   <div class="card">
     <h2>🔽 品目を選択</h2>
     <div class="filter-group">
       <div>
-        <label>カテゴリー</label>
-        <select id="sel-cat">
+        <label>メーカー</label>
+        <select id="sel-maker">
           <option value="">-- 選択してください --</option>
-          <optgroup label="SV 単焦点">
-            <option value="SV-C">CLEAR（クリア）</option>
-            <option value="SV-P">PBUV（紫外線カット）</option>
-          </optgroup>
-          <optgroup label="NL（ニコンライト）">
-            <option value="NL">NL 単焦点</option>
-            <option value="NL-P">NL PBUV</option>
-            <option value="NL-TR">NL 調光レンズ</option>
-          </optgroup>
-          <optgroup label="HOYA">
-            <option value="HOYA-SV">HOYA 単焦点</option>
-            <option value="HOYA-SV-AS">HOYA 単焦点（ニュールックス）</option>
-            <option value="HOYA-BF">HOYA 遠近両用</option>
-          </optgroup>
-          <optgroup label="フォトクロミック">
-            <option value="PHOTO">フォトクロミック（調光）</option>
-          </optgroup>
-          <optgroup label="ビューフィット CLEAR / PBUV">
-            <option value="VF-C">ビューフィット CLEAR</option>
-            <option value="VF-C-INF">ビューフィット-INF CLEAR</option>
-            <option value="VF-P">ビューフィット PBUV</option>
-            <option value="VF-P-INF">ビューフィット-INF PBUV</option>
-          </optgroup>
-          <optgroup label="ビューフィット Transitions TR8">
-            <option value="VF-TR">ビューフィット TR8</option>
-            <option value="VF-TR-INF">ビューフィット-INF TR8</option>
-          </optgroup>
-          <optgroup label="ビューフィット Xtransitions">
-            <option value="VF-XT">ビューフィット Xtransitions</option>
-          </optgroup>
+          <option value="NIKON">NIKON（ニコン）</option>
+          <option value="HOYA">HOYA（ホヤ）</option>
+        </select>
+      </div>
+      <div>
+        <label>カテゴリー</label>
+        <select id="sel-cat" disabled>
+          <option value="">-- メーカーを先に選択 --</option>
         </select>
       </div>
       <div>
@@ -550,10 +528,66 @@ const HOYA_TINTS=[
 ];
 function getTints(cat){return cat.startsWith('HOYA')?HOYA_TINTS:TINTS;}
 
+const NIKON_CATS=[
+  {group:"SV 単焦点",opts:[
+    {val:"SV-C",label:"CLEAR（クリア）"},
+    {val:"SV-P",label:"PBUV（紫外線カット）"},
+  ]},
+  {group:"NL（ニコンライト）",opts:[
+    {val:"NL",label:"NL 単焦点"},
+    {val:"NL-P",label:"NL PBUV"},
+    {val:"NL-TR",label:"NL 調光レンズ"},
+  ]},
+  {group:"フォトクロミック",opts:[
+    {val:"PHOTO",label:"フォトクロミック（調光）"},
+  ]},
+  {group:"ビューフィット CLEAR / PBUV",opts:[
+    {val:"VF-C",label:"ビューフィット CLEAR"},
+    {val:"VF-C-INF",label:"ビューフィット-INF CLEAR"},
+    {val:"VF-P",label:"ビューフィット PBUV"},
+    {val:"VF-P-INF",label:"ビューフィット-INF PBUV"},
+  ]},
+  {group:"ビューフィット Transitions TR8",opts:[
+    {val:"VF-TR",label:"ビューフィット TR8"},
+    {val:"VF-TR-INF",label:"ビューフィット-INF TR8"},
+  ]},
+  {group:"ビューフィット Xtransitions",opts:[
+    {val:"VF-XT",label:"ビューフィット Xtransitions"},
+  ]},
+];
+const HOYA_CATS=[
+  {group:"HOYA 単焦点",opts:[
+    {val:"HOYA-SV",label:"球面 / 片面非球面"},
+    {val:"HOYA-SV-AS",label:"両面非球面（ニュールックス）"},
+  ]},
+  {group:"HOYA 遠近両用",opts:[
+    {val:"HOYA-BF",label:"遠近両用（累進）"},
+  ]},
+];
+
+const selMaker=document.getElementById('sel-maker');
 const selCat=document.getElementById('sel-cat');
 const selModel=document.getElementById('sel-model');
 const selCoat=document.getElementById('sel-coat');
 const selTint=document.getElementById('sel-tint');
+
+selMaker.addEventListener('change',()=>{
+  const maker=selMaker.value;
+  selCat.innerHTML='<option value="">-- 選択してください --</option>';
+  selModel.innerHTML='<option value="">-- カテゴリーを先に選択 --</option>';
+  selCoat.innerHTML='<option value="">-- モデルを先に選択 --</option>';
+  selTint.innerHTML='<option value="">-- コートを先に選択 --</option>';
+  selCat.disabled=!maker; selModel.disabled=true; selCoat.disabled=true; selTint.disabled=true;
+  hideResult();
+  document.getElementById('header-maker').textContent=maker||'メーカーを選択してください';
+  if(!maker)return;
+  const cats=maker==='HOYA'?HOYA_CATS:NIKON_CATS;
+  cats.forEach(g=>{
+    const og=document.createElement('optgroup');og.label=g.group;
+    g.opts.forEach(opt=>{const o=document.createElement('option');o.value=opt.val;o.textContent=opt.label;og.appendChild(o);});
+    selCat.appendChild(og);
+  });
+});
 
 selCat.addEventListener('change',()=>{
   const cat=selCat.value;
@@ -632,11 +666,14 @@ function hideResult(){
 }
 
 function resetAll(){
-  selCat.value='';
+  selMaker.value='';
+  selCat.innerHTML='<option value="">-- メーカーを先に選択 --</option>';
+  selCat.disabled=true;
   selModel.innerHTML='<option value="">-- カテゴリーを先に選択 --</option>';
   selCoat.innerHTML='<option value="">-- モデルを先に選択 --</option>';
   selTint.innerHTML='<option value="">-- コートを先に選択 --</option>';
   selModel.disabled=true; selCoat.disabled=true; selTint.disabled=true;
+  document.getElementById('header-maker').textContent='メーカーを選択してください';
   hideResult();
 }
 
